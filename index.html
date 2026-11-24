@@ -1,0 +1,1687 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Apresentação — Editor Web de Ofertas | Comercial Silva</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@600;700;800;900&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    /* ==========================================================================
+       VARIÁVEIS DE DESIGN (PRETO FOSCO + LARANJA VIBRANTE + DOURADO)
+       ========================================================================== */
+    :root {
+      --bg-dark: #0b0d10;
+      --bg-card: #13171d;
+      --bg-card-hover: #191f28;
+      --border-subtle: rgba(255, 255, 255, 0.08);
+      --border-accent: rgba(255, 107, 0, 0.4);
+
+      --text-primary: #f5f7fa;
+      --text-secondary: #a1aab8;
+      --text-muted: #6b7485;
+
+      --accent-orange: #ff6b00;
+      --accent-orange-glow: rgba(255, 107, 0, 0.35);
+      --accent-gold: #ffd000;
+      --accent-blue: #0047ab;
+      --accent-blue-light: #1e6ce0;
+
+      --font-display: 'Montserrat', sans-serif;
+      --font-body: 'Plus Jakarta Sans', sans-serif;
+
+      --transition-slide: 0.7s cubic-bezier(0.22, 1, 0.36, 1);
+    }
+
+    /* ==========================================================================
+       RESET & ESTRUTURA BASE
+       ========================================================================== */
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    html, body {
+      width: 100%;
+      height: 100%;
+      background-color: var(--bg-dark);
+      color: var(--text-primary);
+      font-family: var(--font-body);
+      overflow: hidden;
+      user-select: none;
+    }
+
+    /* Fundo tecnológico animado sutil */
+    .ambient-bg {
+      position: fixed;
+      inset: 0;
+      z-index: 0;
+      background:
+        radial-gradient(circle at 15% 20%, rgba(255, 107, 0, 0.12), transparent 40%),
+        radial-gradient(circle at 85% 80%, rgba(255, 208, 0, 0.08), transparent 45%),
+        radial-gradient(circle at 50% 50%, #10141b 0%, #090b0e 100%);
+      pointer-events: none;
+    }
+
+    .ambient-grid {
+      position: fixed;
+      inset: 0;
+      z-index: 0;
+      background-image:
+        linear-gradient(rgba(255, 255, 255, 0.025) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255, 255, 255, 0.025) 1px, transparent 1px);
+      background-size: 48px 48px;
+      mask-image: radial-gradient(ellipse at center, black 40%, transparent 85%);
+      pointer-events: none;
+    }
+
+    /* ==========================================================================
+       BARRA DE PROGRESSO SUPERIOR & CABEÇALHO
+       ========================================================================== */
+    .top-progress {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 4px;
+      background: rgba(255, 255, 255, 0.06);
+      z-index: 100;
+    }
+
+    .top-progress-bar {
+      height: 100%;
+      width: 16.66%;
+      background: linear-gradient(90deg, var(--accent-orange), var(--accent-gold));
+      box-shadow: 0 0 14px var(--accent-orange-glow);
+      transition: width 0.5s cubic-bezier(0.22, 1, 0.36, 1);
+    }
+
+    .deck-header {
+      position: fixed;
+      top: 18px;
+      left: 32px;
+      right: 32px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      z-index: 50;
+      pointer-events: none;
+    }
+
+    .brand-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      background: rgba(19, 23, 29, 0.8);
+      backdrop-filter: blur(12px);
+      border: 1px solid var(--border-subtle);
+      padding: 8px 16px;
+      border-radius: 999px;
+      font-size: 0.82rem;
+      font-weight: 600;
+      letter-spacing: 0.04em;
+      color: var(--text-secondary);
+      pointer-events: auto;
+    }
+
+    .brand-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--accent-orange);
+      box-shadow: 0 0 10px var(--accent-orange);
+      animation: pulseDot 2s infinite;
+    }
+
+    @keyframes pulseDot {
+      0%, 100% { transform: scale(1); opacity: 1; }
+      50% { transform: scale(1.4); opacity: 0.65; }
+    }
+
+    .fullscreen-btn {
+      pointer-events: auto;
+      background: rgba(19, 23, 29, 0.8);
+      backdrop-filter: blur(12px);
+      border: 1px solid var(--border-subtle);
+      color: var(--text-secondary);
+      padding: 8px 14px;
+      border-radius: 10px;
+      font-family: var(--font-body);
+      font-size: 0.8rem;
+      font-weight: 600;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      transition: all 0.25s ease;
+    }
+
+    .fullscreen-btn:hover {
+      border-color: var(--accent-orange);
+      color: var(--text-primary);
+      transform: translateY(-1px);
+    }
+
+    /* ==========================================================================
+       CONTAINER DE SLIDES E TRANSIÇÕES
+       ========================================================================== */
+    .slides-viewport {
+      position: relative;
+      width: 100%;
+      height: 100%;
+      z-index: 10;
+    }
+
+    .slide {
+      position: absolute;
+      inset: 0;
+      padding: 80px 6vw 90px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      opacity: 0;
+      visibility: hidden;
+      transform: translateX(60px) scale(0.97);
+      transition:
+        opacity var(--transition-slide),
+        transform var(--transition-slide),
+        visibility 0s linear 0.7s;
+    }
+
+    .slide.prev {
+      transform: translateX(-60px) scale(0.97);
+    }
+
+    .slide.active {
+      opacity: 1;
+      visibility: visible;
+      transform: translateX(0) scale(1);
+      transition:
+        opacity var(--transition-slide),
+        transform var(--transition-slide),
+        visibility 0s linear 0s;
+    }
+
+    .slide-inner {
+      width: 100%;
+      max-width: 1220px;
+      margin: 0 auto;
+    }
+
+    /* ==========================================================================
+       SLIDE 0: SELETOR DE IMAGEM DO COMPUTADOR + EXIBIÇÃO NA 1ª POSIÇÃO
+       ========================================================================== */
+    .picker-wrapper {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      width: 100%;
+      text-align: center;
+    }
+
+    .upload-dropzone {
+      width: 100%;
+      max-width: 780px;
+      background: var(--bg-card);
+      border: 2px dashed rgba(255, 107, 0, 0.45);
+      border-radius: 24px;
+      padding: 44px 32px;
+      box-shadow: 0 24px 60px rgba(0, 0, 0, 0.55);
+      transition: all 0.3s ease;
+      cursor: pointer;
+    }
+
+    .upload-dropzone:hover,
+    .upload-dropzone.dragover {
+      border-color: var(--accent-gold);
+      background: var(--bg-card-hover);
+      transform: translateY(-4px);
+      box-shadow: 0 28px 65px rgba(255, 107, 0, 0.18);
+    }
+
+    .upload-icon-circle {
+      width: 72px;
+      height: 72px;
+      margin: 0 auto 20px;
+      border-radius: 20px;
+      background: rgba(255, 107, 0, 0.14);
+      border: 1px solid rgba(255, 107, 0, 0.35);
+      color: var(--accent-gold);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 2rem;
+    }
+
+    .upload-dropzone h2 {
+      font-family: var(--font-display);
+      font-size: clamp(1.4rem, 2.5vw, 2rem);
+      font-weight: 900;
+      margin-bottom: 10px;
+      color: var(--text-primary);
+    }
+
+    .upload-dropzone p {
+      font-size: 0.98rem;
+      color: var(--text-secondary);
+      margin-bottom: 24px;
+      line-height: 1.5;
+    }
+
+    .select-file-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      background: linear-gradient(135deg, var(--accent-orange), #ff8c00);
+      color: #fff;
+      font-family: var(--font-display);
+      font-weight: 800;
+      font-size: 0.92rem;
+      padding: 13px 26px;
+      border: none;
+      border-radius: 12px;
+      cursor: pointer;
+      box-shadow: 0 10px 26px var(--accent-orange-glow);
+      transition: transform 0.25s ease, box-shadow 0.25s ease;
+    }
+
+    .select-file-btn:hover {
+      transform: translateY(-2px) scale(1.02);
+      box-shadow: 0 14px 34px rgba(255, 107, 0, 0.5);
+    }
+
+    .selected-image-stage {
+      display: none;
+      flex-direction: column;
+      align-items: center;
+      width: 100%;
+      max-width: 1120px;
+      gap: 16px;
+    }
+
+    .selected-image-stage.visible {
+      display: flex;
+    }
+
+    .selected-image-frame {
+      width: 100%;
+      border-radius: 20px;
+      overflow: hidden;
+      border: 1px solid rgba(255, 208, 0, 0.35);
+      box-shadow: 0 28px 70px rgba(0, 0, 0, 0.75);
+      background: #090c10;
+    }
+
+    .selected-image-frame img {
+      display: block;
+      width: 100%;
+      max-height: calc(100vh - 230px);
+      object-fit: contain;
+      margin: 0 auto;
+    }
+
+    .change-image-btn {
+      background: rgba(19, 23, 29, 0.9);
+      border: 1px solid var(--border-subtle);
+      color: var(--text-secondary);
+      font-family: var(--font-body);
+      font-size: 0.84rem;
+      font-weight: 700;
+      padding: 8px 16px;
+      border-radius: 10px;
+      cursor: pointer;
+      transition: all 0.25s ease;
+    }
+
+    .change-image-btn:hover {
+      border-color: var(--accent-orange);
+      color: var(--text-primary);
+    }
+
+    /* ==========================================================================
+       ANIMAÇÕES POR TÓPICO (STAGGER REVEAL)
+       ========================================================================== */
+    .anim-up,
+    .anim-zoom,
+    .anim-left,
+    .anim-right {
+      opacity: 0;
+      transition: opacity 0.65s cubic-bezier(0.22, 1, 0.36, 1),
+                  transform 0.65s cubic-bezier(0.22, 1, 0.36, 1);
+    }
+
+    .anim-up    { transform: translateY(28px); }
+    .anim-zoom  { transform: scale(0.9); }
+    .anim-left  { transform: translateX(-32px); }
+    .anim-right { transform: translateX(32px); }
+
+    .slide.active .anim-up,
+    .slide.active .anim-zoom,
+    .slide.active .anim-left,
+    .slide.active .anim-right {
+      opacity: 1;
+      transform: translate(0, 0) scale(1);
+    }
+
+    /* Delays em cascata para cada tópico aparecer em sequência */
+    .d-1 { transition-delay: 0.12s; }
+    .d-2 { transition-delay: 0.24s; }
+    .d-3 { transition-delay: 0.36s; }
+    .d-4 { transition-delay: 0.48s; }
+    .d-5 { transition-delay: 0.60s; }
+    .d-6 { transition-delay: 0.72s; }
+
+    /* ==========================================================================
+       TIPOGRAFIA & BADGES
+       ========================================================================== */
+    .eyebrow {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 0.78rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.14em;
+      color: var(--accent-orange);
+      background: rgba(255, 107, 0, 0.12);
+      border: 1px solid rgba(255, 107, 0, 0.28);
+      padding: 6px 14px;
+      border-radius: 8px;
+      margin-bottom: 18px;
+    }
+
+    .slide-title {
+      font-family: var(--font-display);
+      font-size: clamp(2rem, 4vw, 3.3rem);
+      font-weight: 900;
+      line-height: 1.12;
+      letter-spacing: -0.02em;
+      margin-bottom: 18px;
+    }
+
+    .slide-title span.highlight {
+      background: linear-gradient(135deg, var(--accent-orange), var(--accent-gold));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .slide-subtitle {
+      font-size: clamp(1rem, 1.45vw, 1.2rem);
+      line-height: 1.6;
+      color: var(--text-secondary);
+      max-width: 640px;
+    }
+
+    /* ==========================================================================
+       SLIDE 1 & 2: MOCKUP DE BANNER PROMOCIONAL (COMERCIAL SILVA)
+       ========================================================================== */
+    .split-grid {
+      display: grid;
+      grid-template-columns: 1.1fr 0.9fr;
+      gap: 48px;
+      align-items: center;
+    }
+
+    .promo-card-mockup {
+      position: relative;
+      background: linear-gradient(145deg, #003b95 0%, #0055d4 55%, #002b70 100%);
+      border-radius: 22px;
+      padding: 24px;
+      border: 2px solid rgba(255, 208, 0, 0.45);
+      box-shadow:
+        0 25px 60px rgba(0, 0, 0, 0.65),
+        0 0 45px rgba(255, 107, 0, 0.2);
+      overflow: hidden;
+      transform-style: preserve-3d;
+      animation: floatBanner 5s ease-in-out infinite;
+    }
+
+    @keyframes floatBanner {
+      0%, 100% { transform: translateY(0px); }
+      50% { transform: translateY(-8px); }
+    }
+
+    /* Raios promocionais no fundo do banner */
+    .promo-card-mockup::before {
+      content: "";
+      position: absolute;
+      inset: -40%;
+      background: repeating-conic-gradient(
+        from 0deg,
+        rgba(255, 255, 255, 0.05) 0deg 15deg,
+        transparent 15deg 30deg
+      );
+      animation: spinRays 35s linear infinite;
+      pointer-events: none;
+    }
+
+    @keyframes spinRays {
+      to { transform: rotate(360deg); }
+    }
+
+    .promo-top-bar {
+      position: relative;
+      z-index: 2;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      margin-bottom: 18px;
+    }
+
+    .store-badge {
+      background: #ffffff;
+      color: #003b95;
+      font-family: var(--font-display);
+      font-weight: 900;
+      font-size: 0.78rem;
+      padding: 8px 12px;
+      border-radius: 12px;
+      border: 2px solid var(--accent-gold);
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);
+      line-height: 1.1;
+      text-align: center;
+    }
+
+    .store-badge small {
+      display: block;
+      font-size: 0.62rem;
+      color: var(--accent-orange);
+      text-transform: uppercase;
+    }
+
+    .offer-ribbon {
+      flex: 1;
+      background: linear-gradient(90deg, #ff5500, #ff8800);
+      color: #fff;
+      font-family: var(--font-display);
+      font-weight: 900;
+      font-size: clamp(1.2rem, 2.2vw, 1.7rem);
+      text-align: center;
+      padding: 8px 14px;
+      border-radius: 12px;
+      letter-spacing: 0.06em;
+      box-shadow: 0 6px 16px rgba(0, 0, 0, 0.3);
+      position: relative;
+    }
+
+    .offer-subribbon {
+      display: inline-block;
+      background: var(--accent-gold);
+      color: #111;
+      font-size: 0.72rem;
+      font-weight: 900;
+      padding: 3px 10px;
+      border-radius: 6px;
+      margin-top: 4px;
+      letter-spacing: 0.05em;
+    }
+
+    .promo-body {
+      position: relative;
+      z-index: 2;
+      display: grid;
+      grid-template-columns: 1fr 1.1fr;
+      gap: 16px;
+      align-items: center;
+      margin: 14px 0;
+    }
+
+    .product-info h3 {
+      font-family: var(--font-display);
+      font-weight: 900;
+      font-size: clamp(1.35rem, 2.3vw, 1.9rem);
+      line-height: 1.12;
+      color: #ffffff;
+      text-shadow: 0 3px 10px rgba(0, 0, 0, 0.45);
+    }
+
+    .product-info .unit-tag {
+      display: inline-block;
+      margin-top: 10px;
+      background: rgba(0, 0, 0, 0.35);
+      border: 1px solid rgba(255, 255, 255, 0.25);
+      color: var(--accent-gold);
+      font-weight: 700;
+      font-size: 0.85rem;
+      padding: 4px 12px;
+      border-radius: 6px;
+    }
+
+    .price-box {
+      background: var(--accent-gold);
+      color: #111317;
+      border-radius: 18px;
+      padding: 16px 18px;
+      box-shadow: 0 12px 28px rgba(0, 0, 0, 0.38);
+      border: 3px solid #ffffff;
+      text-align: right;
+      position: relative;
+    }
+
+    .price-box .currency {
+      position: absolute;
+      top: 14px;
+      left: 14px;
+      font-family: var(--font-display);
+      font-weight: 900;
+      font-size: 1rem;
+      color: #1a1a1a;
+    }
+
+    .price-box .price-main {
+      font-family: var(--font-display);
+      font-weight: 900;
+      font-size: clamp(2.4rem, 4vw, 3.4rem);
+      line-height: 0.95;
+      letter-spacing: -0.04em;
+    }
+
+    .price-box .price-main sup {
+      font-size: 1.35rem;
+      vertical-align: top;
+      margin-left: 2px;
+    }
+
+    .promo-footer-strip {
+      position: relative;
+      z-index: 2;
+      background: linear-gradient(90deg, var(--accent-orange), #ff9900);
+      color: #fff;
+      font-family: var(--font-display);
+      font-weight: 800;
+      font-size: 0.78rem;
+      letter-spacing: 0.08em;
+      text-align: center;
+      padding: 7px;
+      border-radius: 8px;
+      margin-top: 10px;
+    }
+
+    /* ==========================================================================
+       SLIDE 2: FLUXO DE FUNCIONAMENTO (3 PASSOS)
+       ========================================================================== */
+    .steps-list {
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+      margin-top: 26px;
+    }
+
+    .step-item {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      background: var(--bg-card);
+      border: 1px solid var(--border-subtle);
+      padding: 16px 20px;
+      border-radius: 14px;
+      transition: all 0.3s ease;
+    }
+
+    .step-item:hover {
+      border-color: var(--border-accent);
+      background: var(--bg-card-hover);
+      transform: translateX(6px);
+    }
+
+    .step-num {
+      width: 38px;
+      height: 38px;
+      border-radius: 10px;
+      background: linear-gradient(135deg, var(--accent-orange), #ff9100);
+      color: #fff;
+      font-family: var(--font-display);
+      font-weight: 900;
+      font-size: 1rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+
+    .step-text strong {
+      display: block;
+      font-size: 1rem;
+      color: var(--text-primary);
+      margin-bottom: 2px;
+    }
+
+    .step-text span {
+      font-size: 0.88rem;
+      color: var(--text-secondary);
+    }
+
+    /* ==========================================================================
+       SLIDE 3: CARDS DE PROBLEMA & SOLUÇÃO
+       ========================================================================== */
+    .problem-banner {
+      background: linear-gradient(135deg, rgba(255, 107, 0, 0.12), rgba(19, 23, 29, 0.95));
+      border: 1px solid var(--border-accent);
+      border-radius: 16px;
+      padding: 20px 26px;
+      margin: 22px 0 30px;
+      display: flex;
+      align-items: center;
+      gap: 18px;
+    }
+
+    .problem-icon {
+      font-size: 1.8rem;
+      background: rgba(255, 107, 0, 0.18);
+      width: 52px;
+      height: 52px;
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+
+    .problem-banner p {
+      font-size: 1.05rem;
+      color: var(--text-primary);
+      line-height: 1.5;
+    }
+
+    .cards-grid-3 {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 24px;
+    }
+
+    .feature-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border-subtle);
+      border-radius: 20px;
+      padding: 28px 24px;
+      position: relative;
+      overflow: hidden;
+      transition: transform 0.35s ease, border-color 0.35s ease, box-shadow 0.35s ease;
+    }
+
+    .feature-card::after {
+      content: "";
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 3px;
+      background: linear-gradient(90deg, var(--accent-orange), var(--accent-gold));
+      opacity: 0;
+      transition: opacity 0.35s ease;
+    }
+
+    .feature-card:hover {
+      transform: translateY(-8px);
+      border-color: var(--border-accent);
+      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.45);
+    }
+
+    .feature-card:hover::after {
+      opacity: 1;
+    }
+
+    .card-icon {
+      width: 52px;
+      height: 52px;
+      border-radius: 14px;
+      background: rgba(255, 107, 0, 0.12);
+      border: 1px solid rgba(255, 107, 0, 0.25);
+      color: var(--accent-gold);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.5rem;
+      margin-bottom: 20px;
+    }
+
+    .feature-card h3 {
+      font-family: var(--font-display);
+      font-size: 1.25rem;
+      font-weight: 800;
+      margin-bottom: 10px;
+      color: var(--text-primary);
+    }
+
+    .feature-card p {
+      font-size: 0.95rem;
+      line-height: 1.6;
+      color: var(--text-secondary);
+    }
+
+    /* ==========================================================================
+       SLIDE 4: CONHECENDO A INTERFACE (MOCKUP DO SISTEMA + TÓPICOS)
+       ========================================================================== */
+    .interface-layout {
+      display: grid;
+      grid-template-columns: 1.25fr 0.75fr;
+      gap: 36px;
+      align-items: center;
+      margin-top: 20px;
+    }
+
+    .app-window {
+      background: #141820;
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      border-radius: 18px;
+      overflow: hidden;
+      box-shadow: 0 28px 65px rgba(0, 0, 0, 0.65);
+    }
+
+    .window-topbar {
+      background: #0e1117;
+      padding: 12px 16px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      border-bottom: 1px solid var(--border-subtle);
+    }
+
+    .dot { width: 10px; height: 10px; border-radius: 50%; }
+    .dot.r { background: #ff5f56; }
+    .dot.y { background: #ffbd2e; }
+    .dot.g { background: #27c93f; }
+
+    .window-url {
+      margin-left: 12px;
+      background: rgba(255, 255, 255, 0.05);
+      padding: 4px 12px;
+      border-radius: 6px;
+      font-size: 0.72rem;
+      color: var(--text-muted);
+      flex: 1;
+    }
+
+    .window-body {
+      display: grid;
+      grid-template-columns: 110px 1fr 1.15fr;
+      min-height: 290px;
+    }
+
+    .mock-sidebar {
+      background: #0a2558;
+      padding: 14px 10px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .mock-sidebar-brand {
+      font-size: 0.68rem;
+      font-weight: 800;
+      color: #fff;
+      padding-bottom: 8px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.15);
+    }
+
+    .mock-nav-item {
+      font-size: 0.65rem;
+      padding: 6px 8px;
+      border-radius: 6px;
+      color: rgba(255, 255, 255, 0.75);
+    }
+
+    .mock-nav-item.active {
+      background: #1e6ce0;
+      color: #fff;
+      font-weight: 700;
+    }
+
+    .mock-form {
+      background: #f4f6fa;
+      color: #1a202c;
+      padding: 14px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .mock-form-title {
+      font-size: 0.75rem;
+      font-weight: 800;
+      color: #0f172a;
+    }
+
+    .mock-input {
+      background: #fff;
+      border: 1px solid #cbd5e1;
+      border-radius: 6px;
+      padding: 6px 8px;
+      font-size: 0.68rem;
+      font-weight: 600;
+      color: #334155;
+    }
+
+    .mock-input-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 6px;
+    }
+
+    .mock-btn-save {
+      margin-top: auto;
+      background: #1d4ed8;
+      color: #fff;
+      text-align: center;
+      font-size: 0.68rem;
+      font-weight: 700;
+      padding: 7px;
+      border-radius: 6px;
+    }
+
+    .mock-preview-pane {
+      background: #eef2f7;
+      padding: 14px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      border-left: 1px solid #dce3ec;
+    }
+
+    .mini-banner {
+      background: linear-gradient(135deg, #003b95, #0058db);
+      border-radius: 10px;
+      padding: 12px;
+      color: #fff;
+      border: 2px solid var(--accent-gold);
+    }
+
+    .mini-banner-top {
+      background: var(--accent-orange);
+      font-size: 0.65rem;
+      font-weight: 900;
+      text-align: center;
+      padding: 3px;
+      border-radius: 4px;
+      margin-bottom: 8px;
+    }
+
+    .mini-banner-content {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .mini-prod {
+      font-size: 0.75rem;
+      font-weight: 900;
+      line-height: 1.15;
+    }
+
+    .mini-price {
+      background: var(--accent-gold);
+      color: #111;
+      font-weight: 900;
+      font-size: 1.1rem;
+      padding: 6px 8px;
+      border-radius: 8px;
+      border: 2px solid #fff;
+    }
+
+    .mock-export-btns {
+      display: flex;
+      gap: 6px;
+      margin-top: 10px;
+    }
+
+    .mock-export-btns span {
+      flex: 1;
+      text-align: center;
+      font-size: 0.62rem;
+      font-weight: 700;
+      padding: 6px 4px;
+      border-radius: 6px;
+      background: #1d4ed8;
+      color: #fff;
+    }
+
+    .mock-export-btns span.sec {
+      background: #fff;
+      color: #1e293b;
+      border: 1px solid #cbd5e1;
+    }
+
+    .interface-points {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+
+    .ui-point-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border-subtle);
+      border-left: 4px solid var(--accent-orange);
+      border-radius: 14px;
+      padding: 18px 20px;
+      transition: transform 0.3s ease, background 0.3s ease;
+    }
+
+    .ui-point-card:hover {
+      transform: translateX(6px);
+      background: var(--bg-card-hover);
+    }
+
+    .ui-point-card h4 {
+      font-family: var(--font-display);
+      font-size: 1rem;
+      font-weight: 800;
+      color: var(--text-primary);
+      margin-bottom: 4px;
+    }
+
+    .ui-point-card p {
+      font-size: 0.88rem;
+      color: var(--text-secondary);
+      line-height: 1.45;
+    }
+
+    /* ==========================================================================
+       SLIDE 5: CONCLUSÃO
+       ========================================================================== */
+    .conclusion-wrapper {
+      text-align: center;
+      max-width: 960px;
+      margin: 0 auto;
+    }
+
+    .conclusion-wrapper .slide-subtitle {
+      margin: 0 auto 36px;
+      max-width: 700px;
+    }
+
+    .conclusion-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 22px;
+      text-align: left;
+      margin-bottom: 36px;
+    }
+
+    .conclusion-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border-subtle);
+      border-radius: 18px;
+      padding: 24px;
+      transition: transform 0.35s ease, border-color 0.35s ease;
+    }
+
+    .conclusion-card:hover {
+      transform: translateY(-6px);
+      border-color: var(--accent-gold);
+    }
+
+    .conclusion-card .badge-num {
+      display: inline-block;
+      font-family: var(--font-display);
+      font-weight: 900;
+      font-size: 0.78rem;
+      color: var(--accent-gold);
+      background: rgba(255, 208, 0, 0.12);
+      padding: 4px 10px;
+      border-radius: 6px;
+      margin-bottom: 12px;
+    }
+
+    .conclusion-card p {
+      font-size: 0.96rem;
+      line-height: 1.55;
+      color: var(--text-primary);
+    }
+
+    .restart-cta {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      background: linear-gradient(135deg, var(--accent-orange), #ff8c00);
+      color: #fff;
+      font-family: var(--font-display);
+      font-weight: 800;
+      font-size: 0.9rem;
+      padding: 14px 28px;
+      border: none;
+      border-radius: 12px;
+      cursor: pointer;
+      box-shadow: 0 10px 28px var(--accent-orange-glow);
+      transition: transform 0.25s ease, box-shadow 0.25s ease;
+    }
+
+    .restart-cta:hover {
+      transform: translateY(-2px) scale(1.02);
+      box-shadow: 0 14px 34px rgba(255, 107, 0, 0.5);
+    }
+
+    /* ==========================================================================
+       CONTROLES INFERIORES DE NAVEGAÇÃO
+       ========================================================================== */
+    .controls-dock {
+      position: fixed;
+      bottom: 22px;
+      left: 50%;
+      transform: translateX(-50%);
+      z-index: 60;
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      background: rgba(19, 23, 29, 0.85);
+      backdrop-filter: blur(14px);
+      border: 1px solid var(--border-subtle);
+      padding: 10px 18px;
+      border-radius: 999px;
+      box-shadow: 0 12px 32px rgba(0, 0, 0, 0.5);
+    }
+
+    .nav-arrow {
+      width: 38px;
+      height: 38px;
+      border-radius: 50%;
+      border: 1px solid var(--border-subtle);
+      background: rgba(255, 255, 255, 0.04);
+      color: var(--text-primary);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: all 0.25s ease;
+    }
+
+    .nav-arrow:hover:not(:disabled) {
+      background: var(--accent-orange);
+      border-color: var(--accent-orange);
+      transform: scale(1.08);
+    }
+
+    .nav-arrow:disabled {
+      opacity: 0.3;
+      cursor: not-allowed;
+    }
+
+    .dots-indicator {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .dot-btn {
+      width: 9px;
+      height: 9px;
+      border-radius: 999px;
+      border: none;
+      background: rgba(255, 255, 255, 0.22);
+      cursor: pointer;
+      transition: all 0.35s cubic-bezier(0.22, 1, 0.36, 1);
+    }
+
+    .dot-btn.active {
+      width: 28px;
+      background: linear-gradient(90deg, var(--accent-orange), var(--accent-gold));
+    }
+
+    .slide-counter {
+      font-size: 0.8rem;
+      font-weight: 700;
+      color: var(--text-secondary);
+      min-width: 44px;
+      text-align: center;
+      font-variant-numeric: tabular-nums;
+    }
+
+    /* ==========================================================================
+       RESPONSIVIDADE (TABLET & CELULAR)
+       ========================================================================== */
+    @media (max-width: 960px) {
+      html, body {
+        overflow-y: auto;
+      }
+
+      .slide {
+        padding: 84px 20px 100px;
+        align-items: flex-start;
+        overflow-y: auto;
+      }
+
+      .split-grid,
+      .interface-layout {
+        grid-template-columns: 1fr;
+        gap: 28px;
+      }
+
+      .cards-grid-3,
+      .conclusion-grid {
+        grid-template-columns: 1fr;
+        gap: 16px;
+      }
+
+      .window-body {
+        grid-template-columns: 1fr;
+      }
+
+      .mock-sidebar {
+        flex-direction: row;
+        flex-wrap: wrap;
+        align-items: center;
+      }
+
+      .deck-header {
+        left: 16px;
+        right: 16px;
+        top: 12px;
+      }
+
+      .fullscreen-btn span {
+        display: none;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Fundo decorativo -->
+  <div class="ambient-bg"></div>
+  <div class="ambient-grid"></div>
+
+  <!-- Barra de progresso superior -->
+  <div class="top-progress">
+    <div class="top-progress-bar" id="progressBar"></div>
+  </div>
+
+  <!-- Cabeçalho fixo -->
+  <header class="deck-header">
+    <div class="brand-pill">
+      <span class="brand-dot"></span>
+      <span>COMERCIAL SILVA • PROJETO WEB</span>
+    </div>
+    <button class="fullscreen-btn" id="fullscreenBtn" title="Alternar Tela Cheia (Tecla F)">
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3"/>
+      </svg>
+      <span>Tela Cheia</span>
+    </button>
+  </header>
+
+  <!-- Container dos Slides -->
+  <main class="slides-viewport" id="slidesViewport">
+
+    <!-- ==================== SLIDE 0: SELEÇÃO DE IMAGEM DO COMPUTADOR ==================== -->
+    <section class="slide active" data-slide="0">
+      <div class="slide-inner picker-wrapper">
+        <input type="file" id="desktopImageInput" accept="image/*" hidden />
+
+        <div class="upload-dropzone anim-zoom d-1" id="uploadDropzone">
+          <div class="upload-icon-circle">🖼️</div>
+          <h2>Selecione uma imagem do seu computador</h2>
+          <p>
+            Escolha um arquivo da sua <strong>Área de Trabalho</strong> ou arraste e solte aqui.
+            A imagem aparecerá automaticamente como a primeira tela da apresentação.
+          </p>
+          <button type="button" class="select-file-btn" id="selectFileBtn">
+            Escolher Imagem
+          </button>
+        </div>
+
+        <div class="selected-image-stage" id="selectedImageStage">
+          <div class="selected-image-frame anim-zoom d-1">
+            <img id="selectedImagePreview" src="" alt="Imagem selecionada da área de trabalho" />
+          </div>
+          <button type="button" class="change-image-btn" id="changeImageBtn">
+            ↻ Trocar imagem
+          </button>
+        </div>
+      </div>
+    </section>
+
+    <!-- ==================== SLIDE 1: CAPA ==================== -->
+    <section class="slide" data-slide="1">
+      <div class="slide-inner split-grid">
+        <div>
+          <div class="eyebrow anim-up d-1">Apresentação do Sistema</div>
+          <h1 class="slide-title anim-up d-2">
+            EDITOR WEB <br><span class="highlight">DE OFERTAS</span>
+          </h1>
+          <p class="slide-subtitle anim-up d-3">
+            Sistema desenvolvido para o <strong>Comercial Silva</strong> para criar banners promocionais de maneira simples, padronizada e rápida diretamente pelo navegador.
+          </p>
+        </div>
+
+        <!-- Exemplo Visual do Banner Gerado -->
+        <div class="anim-zoom d-4">
+          <div class="promo-card-mockup">
+            <div class="promo-top-bar">
+              <div class="store-badge">
+                <small>Comercial</small>
+                SILVA
+              </div>
+              <div class="offer-ribbon">
+                OFERTA
+                <div><span class="offer-subribbon">IMPERDÍVEL</span></div>
+              </div>
+            </div>
+
+            <div class="promo-body">
+              <div class="product-info">
+                <h3>ÓLEO DE SOJA<br>900 ML</h3>
+                <span class="unit-tag">UNIDADE</span>
+              </div>
+              <div class="price-box">
+                <span class="currency">R$</span>
+                <div class="price-main">8<sup>,90</sup></div>
+              </div>
+            </div>
+
+            <div class="promo-footer-strip">
+              ★ PREÇO PROMOCIONAL ★
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ==================== SLIDE 2: O QUE É O PROJETO? ==================== -->
+    <section class="slide" data-slide="2">
+      <div class="slide-inner split-grid">
+        <div>
+          <div class="eyebrow anim-up d-1">Visão Geral</div>
+          <h2 class="slide-title anim-up d-2">
+            O QUE É O <span class="highlight">PROJETO?</span>
+          </h2>
+          <p class="slide-subtitle anim-up d-3">
+            O <strong>Editor Web de Ofertas</strong> é um sistema acessado diretamente pelo navegador, criado para montar banners promocionais de supermercados sem complicação.
+          </p>
+
+          <div class="steps-list">
+            <div class="step-item anim-left d-4">
+              <div class="step-num">1</div>
+              <div class="step-text">
+                <strong>Preenchimento Rápido</strong>
+                <span>O funcionário informa o nome do produto, o preço e a unidade.</span>
+              </div>
+            </div>
+
+            <div class="step-item anim-left d-5">
+              <div class="step-num">2</div>
+              <div class="step-text">
+                <strong>Montagem Automática</strong>
+                <span>Com esses dados, o sistema prepara a arte pronta em tempo real.</span>
+              </div>
+            </div>
+
+            <div class="step-item anim-left d-6">
+              <div class="step-num">3</div>
+              <div class="step-text">
+                <strong>Exportação Imediata</strong>
+                <span>O banner final pode ser salvo, impresso ou divulgado na hora.</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="anim-right d-4">
+          <div class="promo-card-mockup">
+            <div class="promo-top-bar">
+              <div class="store-badge">
+                <small>Comercial</small>
+                SILVA
+              </div>
+              <div class="offer-ribbon">
+                OFERTA
+                <div><span class="offer-subribbon">PREÇO BAIXO</span></div>
+              </div>
+            </div>
+
+            <div class="promo-body">
+              <div class="product-info">
+                <h3>ÓLEO DE SOJA<br>900 ML</h3>
+                <span class="unit-tag">GARRAFA</span>
+              </div>
+              <div class="price-box">
+                <span class="currency">R$</span>
+                <div class="price-main">8<sup>,90</sup></div>
+              </div>
+            </div>
+
+            <div class="promo-footer-strip">
+              ARTE GERADA AUTOMATICAMENTE
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ==================== SLIDE 3: PROBLEMA & SOLUÇÃO ==================== -->
+    <section class="slide" data-slide="3">
+      <div class="slide-inner">
+        <div class="eyebrow anim-up d-1">Objetivo & Benefícios</div>
+        <h2 class="slide-title anim-up d-2">
+          Qual problema o projeto <span class="highlight">busca resolver?</span>
+        </h2>
+
+        <div class="problem-banner anim-up d-3">
+          <div class="problem-icon">⏱️</div>
+          <p>
+            No dia a dia do comércio, a criação manual de materiais promocionais leva tempo e costuma exigir o uso de programas complexos de edição de imagens.
+          </p>
+        </div>
+
+        <div class="cards-grid-3">
+          <article class="feature-card anim-up d-4">
+            <div class="card-icon">⚡</div>
+            <h3>Mais rapidez</h3>
+            <p>Reduz drasticamente o trabalho manual para montar e atualizar cada oferta do dia.</p>
+          </article>
+
+          <article class="feature-card anim-up d-5">
+            <div class="card-icon">🎯</div>
+            <h3>Mais facilidade</h3>
+            <p>Permite que qualquer colaborador crie banners profissionais sem conhecimentos avançados de edição.</p>
+          </article>
+
+          <article class="feature-card anim-up d-6">
+            <div class="card-icon">📐</div>
+            <h3>Padronização</h3>
+            <p>Mantém um modelo visual limpo, organizado e fiel à identidade da loja nas divulgações.</p>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <!-- ==================== SLIDE 4: CONHECENDO A INTERFACE ==================== -->
+    <section class="slide" data-slide="4">
+      <div class="slide-inner">
+        <div class="eyebrow anim-up d-1">Experiência de Uso</div>
+        <h2 class="slide-title anim-up d-2">
+          Conhecendo a <span class="highlight">interface</span>
+        </h2>
+
+        <div class="interface-layout">
+          <!-- Mockup fiel da tela do Editor -->
+          <div class="app-window anim-zoom d-3">
+            <div class="window-topbar">
+              <span class="dot r"></span>
+              <span class="dot y"></span>
+              <span class="dot g"></span>
+              <div class="window-url">editor-ofertas.comercialsilva.local</div>
+            </div>
+
+            <div class="window-body">
+              <aside class="mock-sidebar">
+                <div class="mock-sidebar-brand">Comercial Silva<br><span style="font-weight:400;opacity:.75;">Estúdio de ofertas</span></div>
+                <div class="mock-nav-item active">+ Nova oferta</div>
+                <div class="mock-nav-item">Ofertas salvas</div>
+                <div class="mock-nav-item">Como usar</div>
+              </aside>
+
+              <div class="mock-form">
+                <div class="mock-form-title">01. Informações do produto</div>
+                <div class="mock-input">ÓLEO SERRA VERDE 1L</div>
+                <div class="mock-input-row">
+                  <div class="mock-input">R$ 8,50</div>
+                  <div class="mock-input">Unidade</div>
+                </div>
+                <div class="mock-form-title" style="margin-top:4px;">02. Personalizar</div>
+                <div class="mock-input">OFERTA • IMPERDÍVEL</div>
+                <div class="mock-btn-save">Salvar oferta</div>
+              </div>
+
+              <div class="mock-preview-pane">
+                <div>
+                  <div style="font-size:0.62rem;font-weight:800;color:#16a34a;margin-bottom:6px;">● VISUALIZAÇÃO EM TEMPO REAL</div>
+                  <div class="mini-banner">
+                    <div class="mini-banner-top">OFERTA IMPERDÍVEL</div>
+                    <div class="mini-banner-content">
+                      <div class="mini-prod">ÓLEO<br>SERRA<br>VERDE 1L</div>
+                      <div class="mini-price">R$ 8,50</div>
+                    </div>
+                  </div>
+                </div>
+                <div class="mock-export-btns">
+                  <span>Baixar PNG</span>
+                  <span class="sec">JPG</span>
+                  <span class="sec">PDF</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Tópicos da Interface -->
+          <div class="interface-points">
+            <div class="ui-point-card anim-right d-4">
+              <h4>1. Campos do Produto</h4>
+              <p>Formulário intuitivo para preencher nome, preço, unidade e personalizar o destaque da oferta.</p>
+            </div>
+
+            <div class="ui-point-card anim-right d-5">
+              <h4>2. Pré-visualização ao Vivo</h4>
+              <p>Acompanhamento instantâneo de como o banner ficará antes mesmo de finalizar a edição.</p>
+            </div>
+
+            <div class="ui-point-card anim-right d-6">
+              <h4>3. Salvar e Baixar Arte</h4>
+              <p>Botões rápidos para salvar a oferta no navegador e exportar em PNG, JPG ou PDF para impressão.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ==================== SLIDE 5: CONCLUSÃO ==================== -->
+    <section class="slide" data-slide="5">
+      <div class="slide-inner conclusion-wrapper">
+        <div class="eyebrow anim-up d-1">Encerramento</div>
+        <h2 class="slide-title anim-up d-2">
+          <span class="highlight">CONCLUSÃO</span>
+        </h2>
+        <p class="slide-subtitle anim-up d-3">
+          O <strong>Editor Web de Ofertas</strong> torna a criação de promoções muito mais simples, rápida e organizada para a rotina do supermercado.
+        </p>
+
+        <div class="conclusion-grid">
+          <div class="conclusion-card anim-up d-4">
+            <span class="badge-num">AGILIDADE</span>
+            <p>Com poucos cliques, o funcionário preenche os dados do produto, visualiza o banner e gera uma imagem pronta para divulgação.</p>
+          </div>
+
+          <div class="conclusion-card anim-up d-5">
+            <span class="badge-num">PRATICIDADE</span>
+            <p>Roda diretamente no navegador sem depender de instalação de programas pesados ou conhecimento em design gráfico.</p>
+          </div>
+
+          <div class="conclusion-card anim-up d-6">
+            <span class="badge-num">IMPACTO REAL</span>
+            <p>O projeto demonstra na prática como a tecnologia web pode facilitar e modernizar as atividades do dia a dia no comércio.</p>
+          </div>
+        </div>
+
+        <button class="restart-cta anim-zoom d-6" id="restartBtn">
+          ↻ Rever Apresentação
+        </button>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- Dock inferior de navegação -->
+  <nav class="controls-dock" aria-label="Navegação de slides">
+    <button class="nav-arrow" id="prevBtn" title="Slide anterior (Seta Esquerda)">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round">
+        <polyline points="15 18 9 12 15 6"></polyline>
+      </svg>
+    </button>
+
+    <div class="dots-indicator" id="dotsContainer"></div>
+
+    <span class="slide-counter" id="slideCounter">1 / 6</span>
+
+    <button class="nav-arrow" id="nextBtn" title="Próximo slide (Seta Direita ou Espaço)">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round">
+        <polyline points="9 18 15 12 9 6"></polyline>
+      </svg>
+    </button>
+  </nav>
+
+  <script>
+    /* ==========================================================================
+       SELETOR DE IMAGEM DO COMPUTADOR PARA A PRIMEIRA POSIÇÃO
+       ========================================================================== */
+    const desktopImageInput = document.getElementById('desktopImageInput');
+    const uploadDropzone = document.getElementById('uploadDropzone');
+    const selectFileBtn = document.getElementById('selectFileBtn');
+    const selectedImageStage = document.getElementById('selectedImageStage');
+    const selectedImagePreview = document.getElementById('selectedImagePreview');
+    const changeImageBtn = document.getElementById('changeImageBtn');
+
+    function handleChosenImageFile(file) {
+      if (!file || !file.type.startsWith('image/')) return;
+      const reader = new FileReader();
+      reader.onload = (event) => {
+        selectedImagePreview.src = event.target.result;
+        selectedImagePreview.alt = file.name || 'Imagem selecionada';
+        uploadDropzone.style.display = 'none';
+        selectedImageStage.classList.add('visible');
+      };
+      reader.readAsDataURL(file);
+    }
+
+    selectFileBtn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      desktopImageInput.click();
+    });
+
+    uploadDropzone.addEventListener('click', () => {
+      desktopImageInput.click();
+    });
+
+    changeImageBtn.addEventListener('click', () => {
+      desktopImageInput.value = '';
+      desktopImageInput.click();
+    });
+
+    desktopImageInput.addEventListener('change', (e) => {
+      const [file] = e.target.files || [];
+      handleChosenImageFile(file);
+    });
+
+    uploadDropzone.addEventListener('dragover', (e) => {
+      e.preventDefault();
+      uploadDropzone.classList.add('dragover');
+    });
+
+    uploadDropzone.addEventListener('dragleave', () => {
+      uploadDropzone.classList.remove('dragover');
+    });
+
+    uploadDropzone.addEventListener('drop', (e) => {
+      e.preventDefault();
+      uploadDropzone.classList.remove('dragover');
+      const [file] = e.dataTransfer.files || [];
+      handleChosenImageFile(file);
+    });
+
+    /* ==========================================================================
+       CONTROLADOR DA APRESENTAÇÃO INTERATIVA
+       ========================================================================== */
+    const slides = Array.from(document.querySelectorAll('.slide'));
+    const totalSlides = slides.length;
+    const prevBtn = document.getElementById('prevBtn');
+    const nextBtn = document.getElementById('nextBtn');
+    const dotsContainer = document.getElementById('dotsContainer');
+    const slideCounter = document.getElementById('slideCounter');
+    const progressBar = document.getElementById('progressBar');
+    const restartBtn = document.getElementById('restartBtn');
+    const fullscreenBtn = document.getElementById('fullscreenBtn');
+
+    let currentIndex = 0;
+
+    // Cria os indicadores de bolinha dinamicamente conforme o número de slides
+    slides.forEach((_, idx) => {
+      const dot = document.createElement('button');
+      dot.className = 'dot-btn' + (idx === 0 ? ' active' : '');
+      dot.setAttribute('aria-label', `Ir para o slide ${idx + 1}`);
+      dot.addEventListener('click', () => goToSlide(idx));
+      dotsContainer.appendChild(dot);
+    });
+
+    const dots = Array.from(document.querySelectorAll('.dot-btn'));
+
+    // Atualiza o estado visual dos slides, barra de progresso e botões
+    function goToSlide(newIndex) {
+      if (newIndex < 0 || newIndex >= totalSlides) return;
+
+      currentIndex = newIndex;
+
+      slides.forEach((slide, idx) => {
+        slide.classList.remove('active', 'prev');
+        if (idx === currentIndex) {
+          slide.classList.add('active');
+        } else if (idx < currentIndex) {
+          slide.classList.add('prev');
+        }
+      });
+
+      dots.forEach((dot, idx) => {
+        dot.classList.toggle('active', idx === currentIndex);
+      });
+
+      slideCounter.textContent = `${currentIndex + 1} / ${totalSlides}`;
+      progressBar.style.width = `${((currentIndex + 1) / totalSlides) * 100}%`;
+
+      prevBtn.disabled = currentIndex === 0;
+      nextBtn.disabled = currentIndex === totalSlides - 1;
+    }
+
+    // Eventos dos botões
+    prevBtn.addEventListener('click', () => goToSlide(currentIndex - 1));
+    nextBtn.addEventListener('click', () => goToSlide(currentIndex + 1));
+    restartBtn.addEventListener('click', () => goToSlide(0));
+
+    // Atalhos de teclado (Setas, Espaço, Home, End, F)
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'ArrowRight' || e.key === ' ' || e.key === 'PageDown') {
+        e.preventDefault();
+        goToSlide(currentIndex + 1);
+      } else if (e.key === 'ArrowLeft' || e.key === 'PageUp') {
+        e.preventDefault();
+        goToSlide(currentIndex - 1);
+      } else if (e.key === 'Home') {
+        goToSlide(0);
+      } else if (e.key === 'End') {
+        goToSlide(totalSlides - 1);
+      } else if (e.key.toLowerCase() === 'f') {
+        toggleFullscreen();
+      }
+    });
+
+    // Suporte a gesto de deslize (swipe) em telas touch / celulares
+    let touchStartX = 0;
+    document.addEventListener('touchstart', (e) => {
+      touchStartX = e.changedTouches[0].screenX;
+    }, { passive: true });
+
+    document.addEventListener('touchend', (e) => {
+      const touchEndX = e.changedTouches[0].screenX;
+      const diff = touchStartX - touchEndX;
+      if (Math.abs(diff) > 50) {
+        if (diff > 0) goToSlide(currentIndex + 1);
+        else goToSlide(currentIndex - 1);
+      }
+    }, { passive: true });
+
+    // Alternar modo tela cheia
+    function toggleFullscreen() {
+      if (!document.fullscreenElement) {
+        document.documentElement.requestFullscreen().catch(() => {});
+      } else {
+        document.exitFullscreen().catch(() => {});
+      }
+    }
+
+    fullscreenBtn.addEventListener('click', toggleFullscreen);
+
+    // Inicializa estado
+    goToSlide(0);
+  </script>
+</body>
+</html>
